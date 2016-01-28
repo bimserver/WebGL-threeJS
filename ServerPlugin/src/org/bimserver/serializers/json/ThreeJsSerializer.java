@@ -17,6 +17,10 @@ import org.bimserver.models.ifc2x3tc1.IfcProduct;
 import org.bimserver.models.ifc2x3tc1.IfcSlab;
 import org.bimserver.models.ifc2x3tc1.IfcWall;
 import org.bimserver.models.ifc2x3tc1.IfcWindow;
+import org.bimserver.models.ifc2x3tc1.IfcDistributionControlElement;
+import org.bimserver.models.ifc2x3tc1.IfcFurnishingElement;
+import org.bimserver.models.ifc2x3tc1.IfcBuildingElementProxy;
+import org.bimserver.models.ifc2x3tc1.IfcFlowTerminal;
 import org.bimserver.plugins.PluginManager;
 import org.bimserver.plugins.renderengine.RenderEnginePlugin;
 import org.bimserver.plugins.serializers.EmfSerializer;
@@ -117,9 +121,15 @@ public class ThreeJsSerializer extends EmfSerializer {
 		Map<String, GeometryInfo> geometryData = new HashMap<String, GeometryInfo>();
 		Class<IdEObject>[] eClasses = new Class[] {
 				IfcWall.class, IfcWindow.class, IfcDoor.class, IfcSlab.class, IfcColumn.class,
+				IfcDistributionControlElement.class, IfcFurnishingElement.class,
+				IfcBuildingElementProxy.class, IfcFlowTerminal.class,
 				org.bimserver.models.ifc4.IfcWall.class,org.bimserver.models.ifc4.IfcWindow.class,
 				org.bimserver.models.ifc4.IfcDoor.class, org.bimserver.models.ifc4.IfcSlab.class,
-				org.bimserver.models.ifc4.IfcColumn.class
+				org.bimserver.models.ifc4.IfcColumn.class,
+				org.bimserver.models.ifc4.IfcDistributionControlElement.class,
+				org.bimserver.models.ifc4.IfcFurnishingElement.class,
+				org.bimserver.models.ifc4.IfcBuildingElementProxy.class,
+				org.bimserver.models.ifc4.IfcFlowTerminal.class
 		};
 		for (Class<? extends IdEObject> eClass : eClasses) {
 			for (IdEObject object : model.getAllWithSubTypes(eClass)) {
