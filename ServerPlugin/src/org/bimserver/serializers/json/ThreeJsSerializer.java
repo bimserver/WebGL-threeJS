@@ -51,7 +51,9 @@ public class ThreeJsSerializer extends EmfSerializer {
 			out.println("{");
 			out.println("  \"metadata\" : { \"formatVersion\" : 4.3, \"type\" : \"object\", \"generator\" : \"BIMserver three.js serializer\"  }, ");
 			out.println("  \"geometries\" : [");
-			Map<String, GeometryInfo> geometryData = collectGeometryData();
+			Map<String, GeometryInfo> geometryData = new HashMap<String, GeometryInfo>();
+			Map<String, String> objectTypes = new HashMap<String, String>();
+			collectObjectData(geometryData, objectTypes);
 			writeGeometries(geometryData);
 			out.println("  ],");
 			out.println("  \"object\" : {");
@@ -59,7 +61,7 @@ public class ThreeJsSerializer extends EmfSerializer {
 			out.println("  \"type\" : \"Scene\",");
 			out.println("  \"matrix\" : [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],");
 			out.println("  \"children\" : [");
-			writeObjects(geometryData);
+			writeObjects(geometryData, objectTypes);
 			out.println("  ]");
 			out.println("  }");
 			out.println("}");
@@ -117,8 +119,10 @@ public class ThreeJsSerializer extends EmfSerializer {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, GeometryInfo> collectGeometryData() {
-		Map<String, GeometryInfo> geometryData = new HashMap<String, GeometryInfo>();
+	private boolean collectObjectData(
+			Map<String, GeometryInfo> geometryData,
+			Map<String, String> objectTypes_
+			) {
 		Class<IdEObject>[] eClasses = new Class[] {
 				IfcWall.class, IfcWindow.class, IfcDoor.class, IfcSlab.class, IfcColumn.class,
 				IfcDistributionControlElement.class, IfcFurnishingElement.class,
@@ -138,9 +142,11 @@ public class ThreeJsSerializer extends EmfSerializer {
 				if (geometryInfo != null) {
 					geometryData.put(ifcRoot.getGlobalId(), geometryInfo);
 				}
+				String objectType = eClass.getSimpleName();
+				objectTypes_.put(ifcRoot.getGlobalId(), objectType);
 			}
 		}
-		return geometryData;
+		return true;
 	}
 
 
@@ -159,21 +165,26 @@ public class ThreeJsSerializer extends EmfSerializer {
 		out.println();
 	}
 
-	private void writeObjects(Map<String, GeometryInfo> geometryInfos) {
+	private void writeObjects(
+			Map<String, GeometryInfo> geometryInfos,
+			Map<String, String> objectTypes_
+			) {
 		boolean first = true;
 		for (Map.Entry<String, GeometryInfo> geometryEntry: geometryInfos.entrySet()) {
 			String guid = geometryEntry.getKey();
 			GeometryInfo geometryInfo = geometryEntry.getValue();
+			String objectType = objectTypes_.get(geometryEntry.getKey());
 			out.println(first ? "  {" : "  , {");
-			writeObject(guid, geometryInfo);
+			writeObject(guid, geometryInfo, objectType);
 			out.print("  }");
 			first = false;
 		}
 		out.println();
 	}
 
-	private void writeObject(String guid, GeometryInfo geometryInfo) {
+	private void writeObject(String guid, GeometryInfo geometryInfo, String type_) {
 		out.println("  \"uuid\" : \"" + guid + "\", ");
+		out.println("  \"name\" : \"" + type_ + "\", ");
 		out.println("  \"type\" : \"Mesh\", ");
 		out.println("  \"geometry\" : \"" + geometryInfo.getData().getOid() + "\", ");
 		out.print(  "  \"matrix\" : [");
