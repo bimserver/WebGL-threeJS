@@ -2,6 +2,8 @@ package org.bimserver.serializers.json;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
@@ -280,8 +282,23 @@ public class ThreeJsSerializer extends EmfSerializer {
 					geometryData.put(ifcRoot.getGlobalId(), geometryInfo);
 				}
 				//String objectType = eClass.getSimpleName() + ":" + ifcRoot.getName();
+				String objectName = "";
+				try {
+					objectName = URLEncoder.encode(
+							ifcRoot.getName(),
+							java.nio.charset.StandardCharsets.UTF_8.toString()
+							);
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				String objectType = eClass.getSimpleName();
-				objectTypes_.put(ifcRoot.getGlobalId(), objectType);
+				// TODO
+				// rename the types with something that explains better, since
+				// now it holds Type:name
+				objectTypes_.put(
+						ifcRoot.getGlobalId(),
+						objectType + ":" + objectName);
 			}
 		}
 		return true;
